@@ -95,7 +95,28 @@ fun PocketLabNavigation(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("dashboard") {
-                DashboardScreen()
+                DashboardScreen(
+                    onNavigateToTerminal = {
+                        navController.navigate("terminal") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToLinux = {
+                        navController.navigate("linux") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToFiles = {
+                        navController.navigate("files") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate("settings") {
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
 
             composable("terminal") {
