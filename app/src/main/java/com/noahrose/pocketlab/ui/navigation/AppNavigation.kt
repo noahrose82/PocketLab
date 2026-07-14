@@ -25,15 +25,38 @@ private data class NavigationItem(
 )
 
 @Composable
-fun PocketLabNavigation() {
+fun PocketLabNavigation(
+    darkModeEnabled: Boolean,
+    onDarkModeChanged: (Boolean) -> Unit
+) {
     val navController = rememberNavController()
 
     val navigationItems = listOf(
-        NavigationItem("dashboard", "Dashboard", "⌂"),
-        NavigationItem("terminal", "Terminal", ">_"),
-        NavigationItem("files", "Files", "▣"),
-        NavigationItem("linux", "Linux", "◆"),
-        NavigationItem("settings", "Settings", "⚙")
+        NavigationItem(
+            route = "dashboard",
+            label = "Dashboard",
+            symbol = "⌂"
+        ),
+        NavigationItem(
+            route = "terminal",
+            label = "Terminal",
+            symbol = ">_"
+        ),
+        NavigationItem(
+            route = "files",
+            label = "Files",
+            symbol = "▣"
+        ),
+        NavigationItem(
+            route = "linux",
+            label = "Linux",
+            symbol = "◆"
+        ),
+        NavigationItem(
+            route = "settings",
+            label = "Settings",
+            symbol = "⚙"
+        )
     )
 
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -47,7 +70,7 @@ fun PocketLabNavigation() {
                         selected = currentRoute == item.route,
                         onClick = {
                             navController.navigate(item.route) {
-                                popUpTo("dashboard") {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
 
@@ -56,10 +79,10 @@ fun PocketLabNavigation() {
                             }
                         },
                         icon = {
-                            Text(item.symbol)
+                            Text(text = item.symbol)
                         },
                         label = {
-                            Text(item.label)
+                            Text(text = item.label)
                         }
                     )
                 }
@@ -88,7 +111,10 @@ fun PocketLabNavigation() {
             }
 
             composable("settings") {
-                SettingsScreen()
+                SettingsScreen(
+                    darkModeEnabled = darkModeEnabled,
+                    onDarkModeChanged = onDarkModeChanged
+                )
             }
         }
     }
