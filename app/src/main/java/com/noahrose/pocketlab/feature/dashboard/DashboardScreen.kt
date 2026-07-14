@@ -1,4 +1,4 @@
-package com.noahrose.pocketlab.ui.screens
+package com.noahrose.pocketlab.feature.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,9 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
 @Composable
-fun HomeScreen() {
+fun DashboardScreen() {
     var linuxInstalled by remember { mutableStateOf(false) }
 
     Scaffold { innerPadding ->
@@ -163,7 +162,7 @@ private fun StatusCard(
 
 @Composable
 private fun SmallStatusCard(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     title: String,
     value: String
 ) {

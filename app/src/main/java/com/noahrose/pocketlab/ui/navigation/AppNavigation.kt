@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.noahrose.pocketlab.ui.screens.FilesScreen
-import com.noahrose.pocketlab.ui.screens.HomeScreen
+import com.noahrose.pocketlab.feature.dashboard.DashboardScreen
 import com.noahrose.pocketlab.ui.screens.LinuxScreen
 import com.noahrose.pocketlab.ui.screens.SettingsScreen
 import com.noahrose.pocketlab.ui.screens.TerminalScreen
@@ -95,7 +95,7 @@ fun PocketLabNavigation(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("dashboard") {
-                HomeScreen()
+                DashboardScreen()
             }
 
             composable("terminal") {
