@@ -10,12 +10,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SmallStatusCard(
     title: String,
     value: String,
+    symbol: String? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -28,15 +30,21 @@ fun SmallStatusCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge
+                text = if (symbol == null) {
+                    title
+                } else {
+                    "$symbol  $title"
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }

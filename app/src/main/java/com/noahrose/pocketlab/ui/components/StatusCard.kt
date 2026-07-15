@@ -13,15 +13,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.noahrose.pocketlab.feature.dashboard.SystemStatus
 
 @Composable
 fun StatusCard(
     title: String,
-    value: String,
-    symbol: String,
+    status: SystemStatus,
     modifier: Modifier = Modifier
 ) {
+    val statusColor = statusColor(status)
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -37,21 +41,50 @@ fun StatusCard(
             Column {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = value,
-                    style = MaterialTheme.typography.bodyLarge
+                    text = status.label.uppercase(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = statusColor,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
             Text(
-                text = symbol,
-                style = MaterialTheme.typography.headlineLarge
+                text = status.symbol,
+                style = MaterialTheme.typography.headlineLarge,
+                color = statusColor
             )
+        }
+    }
+}
+
+@Composable
+private fun statusColor(
+    status: SystemStatus
+): Color {
+    return when (status) {
+        SystemStatus.ONLINE,
+        SystemStatus.READY -> {
+            MaterialTheme.colorScheme.primary
+        }
+
+        SystemStatus.INSTALLING -> {
+            MaterialTheme.colorScheme.tertiary
+        }
+
+        SystemStatus.ERROR -> {
+            MaterialTheme.colorScheme.error
+        }
+
+        SystemStatus.OFFLINE,
+        SystemStatus.NOT_INSTALLED -> {
+            MaterialTheme.colorScheme.onSurfaceVariant
         }
     }
 }

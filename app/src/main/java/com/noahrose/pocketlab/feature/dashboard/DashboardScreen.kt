@@ -16,27 +16,26 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.noahrose.pocketlab.ui.components.ActionCard
+import com.noahrose.pocketlab.ui.components.PocketTopBar
+import com.noahrose.pocketlab.ui.components.SectionHeader
 import com.noahrose.pocketlab.ui.components.SmallStatusCard
 import com.noahrose.pocketlab.ui.components.StatusCard
-import com.noahrose.pocketlab.ui.components.SectionHeader
-import com.noahrose.pocketlab.ui.components.PocketTopBar
-import com.noahrose.pocketlab.ui.components.ActionCard
+
 @Composable
 fun DashboardScreen(
     onNavigateToTerminal: () -> Unit,
     onNavigateToLinux: () -> Unit,
     onNavigateToFiles: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    dashboardViewModel: DashboardViewModel = viewModel()
 ) {
-    var linuxInstalled by remember { mutableStateOf(false) }
+    val uiState by dashboardViewModel.uiState
 
     Scaffold { innerPadding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -44,96 +43,108 @@ fun DashboardScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-
             PocketTopBar(
                 title = "PocketLab",
                 subtitle = "Your Cyberdeck. Anywhere."
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            SectionHeader(
+                title = "System Status"
+            )
 
-            SectionHeader(title = "System Status")
-
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             StatusCard(
                 title = "Linux Environment",
-                value = if (linuxInstalled) "Installed" else "Not Installed",
-                symbol = if (linuxInstalled) "●" else "○"
+                status = uiState.linuxStatus
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 SmallStatusCard(
                     modifier = Modifier.weight(1f),
                     title = "Packages",
-                    value = "0"
+                    value = uiState.packageCount.toString(),
+                    symbol = "□"
                 )
 
                 SmallStatusCard(
                     modifier = Modifier.weight(1f),
                     title = "Storage",
-                    value = "0 MB"
+                    value = uiState.storageUsed,
+                    symbol = "▰"
                 )
-
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 SmallStatusCard(
                     modifier = Modifier.weight(1f),
                     title = "Terminal",
-                    value = "Ready"
+                    value = uiState.terminalStatus.label,
+                    symbol = ">_"
                 )
 
                 SmallStatusCard(
                     modifier = Modifier.weight(1f),
                     title = "Architecture",
-                    value = "ARM64"
+                    value = uiState.architecture,
+                    symbol = "◇"
                 )
-
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    linuxInstalled = !linuxInstalled
-                }
+                onClick = dashboardViewModel::toggleLinuxInstallation
             ) {
-
                 Text(
-                    if (linuxInstalled)
+                    text = if (uiState.linuxInstalled) {
                         "Remove Linux"
-                    else
+                    } else {
                         "Install Linux"
+                    }
                 )
-
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Text(
-                text = "This button is currently a demonstration. In Phase 3 it will install a real Linux environment.",
+                text = "This installation control currently demonstrates state changes. A later phase will connect it to the real rootless Linux installer.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(28.dp))
 
-            SectionHeader(title = "Quick Actions")
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            SectionHeader(
+                title = "Quick Actions"
+            )
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -154,7 +165,9 @@ fun DashboardScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -175,8 +188,15 @@ fun DashboardScreen(
                 )
             }
 
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+
+            Text(
+                text = "PocketLab v0.1.0",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-
     }
-
 }
