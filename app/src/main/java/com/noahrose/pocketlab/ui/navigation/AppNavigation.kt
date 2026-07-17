@@ -12,11 +12,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.noahrose.pocketlab.ui.screens.FilesScreen
+import com.noahrose.pocketlab.feature.boot.BootScreen
 import com.noahrose.pocketlab.feature.dashboard.DashboardScreen
+import com.noahrose.pocketlab.ui.screens.FilesScreen
 import com.noahrose.pocketlab.ui.screens.LinuxScreen
 import com.noahrose.pocketlab.ui.screens.SettingsScreen
 import com.noahrose.pocketlab.ui.screens.TerminalScreen
+
+private const val BOOT_ROUTE = "boot"
+private const val DASHBOARD_ROUTE = "dashboard"
+private const val TERMINAL_ROUTE = "terminal"
+private const val FILES_ROUTE = "files"
+private const val LINUX_ROUTE = "linux"
+private const val SETTINGS_ROUTE = "settings"
 
 private data class NavigationItem(
     val route: String,
@@ -33,27 +41,27 @@ fun PocketLabNavigation(
 
     val navigationItems = listOf(
         NavigationItem(
-            route = "dashboard",
+            route = DASHBOARD_ROUTE,
             label = "Dashboard",
             symbol = "⌂"
         ),
         NavigationItem(
-            route = "terminal",
+            route = TERMINAL_ROUTE,
             label = "Terminal",
             symbol = ">_"
         ),
         NavigationItem(
-            route = "files",
+            route = FILES_ROUTE,
             label = "Files",
             symbol = "▣"
         ),
         NavigationItem(
-            route = "linux",
+            route = LINUX_ROUTE,
             label = "Linux",
             symbol = "◆"
         ),
         NavigationItem(
-            route = "settings",
+            route = SETTINGS_ROUTE,
             label = "Settings",
             symbol = "⚙"
         )
@@ -61,77 +69,94 @@ fun PocketLabNavigation(
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val showBottomBar = currentRoute != BOOT_ROUTE
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                navigationItems.forEach { item ->
-                    NavigationBarItem(
-                        selected = currentRoute == item.route,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
+            if (showBottomBar) {
+                NavigationBar {
+                    navigationItems.forEach { item ->
+                        NavigationBarItem(
+                            selected = currentRoute == item.route,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(DASHBOARD_ROUTE) {
+                                        saveState = true
+                                    }
 
-                                launchSingleTop = true
-                                restoreState = true
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = {
+                                Text(text = item.symbol)
+                            },
+                            label = {
+                                Text(text = item.label)
                             }
-                        },
-                        icon = {
-                            Text(text = item.symbol)
-                        },
-                        label = {
-                            Text(text = item.label)
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "dashboard",
+            startDestination = BOOT_ROUTE,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("dashboard") {
-                DashboardScreen(
-                    onNavigateToTerminal = {
-                        navController.navigate("terminal") {
-                            launchSingleTop = true
-                        }
-                    },
-                    onNavigateToLinux = {
-                        navController.navigate("linux") {
-                            launchSingleTop = true
-                        }
-                    },
-                    onNavigateToFiles = {
-                        navController.navigate("files") {
-                            launchSingleTop = true
-                        }
-                    },
-                    onNavigateToSettings = {
-                        navController.navigate("settings") {
+            composable(BOOT_ROUTE) {
+                BootScreen(
+                    onBootComplete = {
+                        navController.navigate(DASHBOARD_ROUTE) {
+                            popUpTo(BOOT_ROUTE) {
+                                inclusive = true
+                            }
+
                             launchSingleTop = true
                         }
                     }
                 )
             }
 
-            composable("terminal") {
+            composable(DASHBOARD_ROUTE) {
+                DashboardScreen(
+                    onNavigateToTerminal = {
+                        navController.navigate(TERMINAL_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToLinux = {
+                        navController.navigate(LINUX_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToFiles = {
+                        navController.navigate(FILES_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(SETTINGS_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+
+            composable(TERMINAL_ROUTE) {
                 TerminalScreen()
             }
 
-            composable("files") {
+            composable(FILES_ROUTE) {
                 FilesScreen()
             }
 
-            composable("linux") {
+            composable(LINUX_ROUTE) {
                 LinuxScreen()
             }
 
-            composable("settings") {
+            composable(SETTINGS_ROUTE) {
                 SettingsScreen(
                     darkModeEnabled = darkModeEnabled,
                     onDarkModeChanged = onDarkModeChanged
