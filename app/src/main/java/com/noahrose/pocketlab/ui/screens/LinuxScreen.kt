@@ -1,24 +1,71 @@
 package com.noahrose.pocketlab.ui.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.noahrose.pocketlab.feature.linux.LinuxViewModel
 
 @Composable
-fun LinuxScreen() {
+fun LinuxScreen(
+    linuxViewModel: LinuxViewModel = viewModel()
+) {
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    val installation by linuxViewModel.installation
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Text(
-            "Linux Manager Coming Soon",
+            text = installation.distribution.displayName,
             style = MaterialTheme.typography.headlineMedium
         )
+
+        Text("Version: ${installation.version}")
+
+        Text(
+            if (installation.installed)
+                "Status: Installed ✅"
+            else
+                "Status: Not Installed"
+        )
+
+        Text("Packages: ${installation.packageCount}")
+
+        Text("Storage: ${installation.storageUsedMb} MB")
+
+        if (installation.installed) {
+            Button(
+                onClick = {
+                    linuxViewModel.removeLinux()
+                }
+            ) {
+                Text("Remove Linux")
+            }
+        } else {
+            Button(
+                onClick = {
+                    linuxViewModel.installLinux()
+                }
+            ) {
+                Text("Install Ubuntu")
+            }
+        }
 
     }
 
