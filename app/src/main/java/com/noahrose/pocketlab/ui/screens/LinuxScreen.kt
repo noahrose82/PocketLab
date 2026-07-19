@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.noahrose.pocketlab.feature.linux.LinuxViewModel
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LinuxScreen(
@@ -39,10 +40,17 @@ fun LinuxScreen(
         Text("Version: ${installation.version}")
 
         Text(
-            if (installation.installed)
+            text = if (installation.installed)
                 "Status: Installed ✅"
             else
-                "Status: Not Installed"
+                "Status: Not Installed",
+
+            color = if (installation.installed)
+                Color(0xFF00C853)
+            else
+                Color(0xFFD32F2F),
+
+            style = MaterialTheme.typography.titleMedium
         )
 
         Text("Packages: ${installation.packageCount}")
