@@ -35,7 +35,7 @@ fun SettingsScreen(
 
         SettingSwitchCard(
             title = "Matrix mode",
-            description = "Use the neon-green PocketLab cyberdeck theme.",
+            description = "Use the neon-green Atlas Cyberdeck theme.",
             checked = darkModeEnabled,
             onCheckedChange = onDarkModeChanged
         )
@@ -43,7 +43,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "PocketLab version 1.0",
+            text = "Atlas Cyberdeck v0.6.0 \"Forge\"",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PocketTopBar(
+fun AtlasTopBar(
     title: String,
     subtitle: String
 ) {
@@ -39,9 +39,10 @@ fun PocketTopBar(
             )
 
             Text(
-                text = "SYSTEM ONLINE",
+                text = "ATLAS ONLINE",
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold
             )
 
         }
@@ -61,5 +62,4 @@ fun PocketTopBar(
         )
 
     }
-
 }

@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.noahrose.pocketlab.ui.navigation.PocketLabNavigation
+import com.noahrose.pocketlab.ui.navigation.AtlasNavigation
 import com.noahrose.pocketlab.ui.theme.PocketLabTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                 darkTheme = darkModeEnabled,
                 dynamicColor = false
             ) {
-                PocketLabNavigation(
+                AtlasNavigation(
                     darkModeEnabled = darkModeEnabled,
                     onDarkModeChanged = {
                         darkModeEnabled = it

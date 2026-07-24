@@ -34,7 +34,7 @@ private data class NavigationItem(
 )
 
 @Composable
-fun PocketLabNavigation(
+fun AtlasNavigation(
     darkModeEnabled: Boolean,
     onDarkModeChanged: (Boolean) -> Unit
 ) {

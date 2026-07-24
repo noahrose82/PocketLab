@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.noahrose.pocketlab.ui.components.ActionCard
-import com.noahrose.pocketlab.ui.components.PocketTopBar
+import com.noahrose.pocketlab.ui.components.AtlasTopBar
 import com.noahrose.pocketlab.ui.components.SectionHeader
 import com.noahrose.pocketlab.ui.components.SmallStatusCard
 import com.noahrose.pocketlab.ui.components.StatusCard
@@ -43,7 +43,7 @@ fun DashboardScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-            PocketTopBar(
+            AtlasTopBar(
                 title = "Atlas Cyberdeck",
                 subtitle = "Build with Purpose."
             )
