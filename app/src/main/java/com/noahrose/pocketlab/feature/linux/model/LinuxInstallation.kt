@@ -12,6 +12,12 @@ data class LinuxInstallation(
 
     val packageCount: Int,
 
-    val storageUsedMb: Long
+    val storageUsedMb: Long,
+
+    val isInstalling: Boolean = false,
+
+    val installationProgress: Float = 0f,
+
+    val installationStep: String = "Ready"
 
 )

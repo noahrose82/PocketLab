@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,7 +24,7 @@ import com.noahrose.pocketlab.ui.components.PocketTopBar
 import com.noahrose.pocketlab.ui.components.SectionHeader
 import com.noahrose.pocketlab.ui.components.SmallStatusCard
 import com.noahrose.pocketlab.ui.components.StatusCard
-
+import androidx.compose.runtime.collectAsState
 @Composable
 fun DashboardScreen(
     onNavigateToTerminal: () -> Unit,
@@ -32,7 +33,7 @@ fun DashboardScreen(
     onNavigateToSettings: () -> Unit,
     dashboardViewModel: DashboardViewModel = viewModel()
 ) {
-    val uiState = dashboardViewModel.uiState.value
+    val uiState by dashboardViewModel.uiState.collectAsState()
 
     Scaffold { innerPadding ->
         Column(
@@ -43,8 +44,8 @@ fun DashboardScreen(
                 .padding(20.dp)
         ) {
             PocketTopBar(
-                title = "PocketLab",
-                subtitle = "Your Cyberdeck. Anywhere."
+                title = "Atlas Cyberdeck",
+                subtitle = "Build with Purpose."
             )
 
             SectionHeader(
@@ -112,13 +113,20 @@ fun DashboardScreen(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = dashboardViewModel::toggleLinuxInstallation
+                enabled = uiState.linuxStatus != SystemStatus.INSTALLING,
+                onClick = {
+                    if (uiState.linuxInstalled) {
+                        dashboardViewModel.toggleLinuxInstallation()
+                    } else {
+                        onNavigateToLinux()
+                    }
+                }
             ) {
                 Text(
-                    text = if (uiState.linuxInstalled) {
-                        "Remove Linux"
-                    } else {
-                        "Install Linux"
+                    text = when {
+                        uiState.linuxStatus == SystemStatus.INSTALLING -> "Installing Linux..."
+                        uiState.linuxInstalled -> "Remove Linux"
+                        else -> "Open Linux Manager"
                     }
                 )
             }
@@ -192,9 +200,7 @@ fun DashboardScreen(
             )
 
             Text(
-                text = "PocketLab v0.1.0",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "Atlas Cyberdeck v0.5.1 \"Forge\""
             )
         }
     }

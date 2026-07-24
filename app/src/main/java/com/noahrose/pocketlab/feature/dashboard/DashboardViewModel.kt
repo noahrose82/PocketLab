@@ -2,44 +2,61 @@ package com.noahrose.pocketlab.feature.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.noahrose.pocketlab.feature.workspace.Workspace
+import com.noahrose.pocketlab.feature.linux.model.LinuxInstallation
+import com.noahrose.pocketlab.feature.linux.repository.LinuxRepository
 import com.noahrose.pocketlab.feature.workspace.WorkspaceRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 class DashboardViewModel : ViewModel() {
 
     val uiState: StateFlow<DashboardUiState> =
-        WorkspaceRepository.workspace
-            .map { workspace ->
-                workspace.toDashboardUiState()
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = WorkspaceRepository.workspace.value
-                    .toDashboardUiState()
+        combine(
+            LinuxRepository.installation,
+            WorkspaceRepository.workspace
+        ) { installation, workspace ->
+
+            installation.toDashboardUiState(
+                terminalReady = workspace.terminalReady,
+                architecture = workspace.architecture
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = LinuxRepository.getInstallation()
+                .toDashboardUiState(
+                    terminalReady =
+                        WorkspaceRepository.workspace.value.terminalReady,
+                    architecture =
+                        WorkspaceRepository.workspace.value.architecture
+                )
+        )
 
     fun toggleLinuxInstallation() {
-        val currentlyInstalled =
-            WorkspaceRepository.workspace.value.linuxInstalled
+        val installation = LinuxRepository.getInstallation()
 
-        WorkspaceRepository.updateLinuxInstalled(
-            installed = !currentlyInstalled
-        )
+        if (installation.isInstalling) {
+            return
+        }
+
+        if (installation.installed) {
+            LinuxRepository.removeLinux()
+        }
     }
 }
 
-private fun Workspace.toDashboardUiState(): DashboardUiState {
+private fun LinuxInstallation.toDashboardUiState(
+    terminalReady: Boolean,
+    architecture: String
+): DashboardUiState {
     return DashboardUiState(
-        linuxInstalled = linuxInstalled,
-        linuxStatus = if (linuxInstalled) {
-            SystemStatus.READY
-        } else {
-            SystemStatus.NOT_INSTALLED
+        linuxInstalled = installed,
+        linuxStatus = when {
+            isInstalling -> SystemStatus.INSTALLING
+            installed -> SystemStatus.READY
+            else -> SystemStatus.NOT_INSTALLED
         },
         terminalStatus = if (terminalReady) {
             SystemStatus.READY

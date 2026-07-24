@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -80,7 +81,11 @@ fun PocketLabNavigation(
                             selected = currentRoute == item.route,
                             onClick = {
                                 navController.navigate(item.route) {
-                                    popUpTo(DASHBOARD_ROUTE) {
+                                    popUpTo(
+                                        navController.graph
+                                            .findStartDestination()
+                                            .id
+                                    ) {
                                         saveState = true
                                     }
 
@@ -153,7 +158,17 @@ fun PocketLabNavigation(
             }
 
             composable(LINUX_ROUTE) {
-                LinuxScreen()
+                LinuxScreen(
+                    onBack = {
+                        navController.navigate(DASHBOARD_ROUTE) {
+                            popUpTo(DASHBOARD_ROUTE) {
+                                inclusive = false
+                            }
+
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
 
             composable(SETTINGS_ROUTE) {

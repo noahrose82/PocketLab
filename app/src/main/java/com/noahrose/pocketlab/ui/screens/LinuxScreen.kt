@@ -3,78 +3,211 @@ package com.noahrose.pocketlab.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.noahrose.pocketlab.feature.linux.LinuxViewModel
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LinuxScreen(
+    onBack: () -> Unit,
     linuxViewModel: LinuxViewModel = viewModel()
 ) {
-
     val installation by linuxViewModel.installation
 
+    val installationSteps = listOf(
+        "Preparing installation...",
+        "Downloading packages...",
+        "Installing packages...",
+        "Configuring system...",
+        "Cleaning up..."
+    )
+    Button(
+        onClick = onBack
+    ) {
+        Text("Back to Dashboard")
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
 
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(
+            space = 16.dp,
+            alignment = Alignment.CenterVertically
+        ),
+
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             text = installation.distribution.displayName,
             style = MaterialTheme.typography.headlineMedium
         )
 
-        Text("Version: ${installation.version}")
+        Text(
+            text = "Version ${installation.version}",
+            style = MaterialTheme.typography.bodyLarge
+        )
 
         Text(
-            text = if (installation.installed)
-                "Status: Installed ✅"
-            else
-                "Status: Not Installed",
+            text = when {
+                installation.isInstalling -> "Status: Installing..."
+                installation.installed -> "Status: Installed ✓"
+                else -> "Status: Not Installed"
+            },
 
-            color = if (installation.installed)
-                Color(0xFF00C853)
-            else
-                Color(0xFFD32F2F),
+            color = when {
+                installation.isInstalling -> Color(0xFFFFC107)
+                installation.installed -> Color(0xFF00C853)
+                else -> Color(0xFFD32F2F)
+            },
 
             style = MaterialTheme.typography.titleMedium
         )
 
-        Text("Packages: ${installation.packageCount}")
+        HorizontalDivider(
+            modifier = Modifier.widthIn(max = 500.dp)
+        )
 
-        Text("Storage: ${installation.storageUsedMb} MB")
+        if (installation.isInstalling) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 500.dp),
 
-        if (installation.installed) {
-            Button(
-                onClick = {
-                    linuxViewModel.removeLinux()
-                }
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text("Remove Linux")
-            }
-        } else {
-            Button(
-                onClick = {
-                    linuxViewModel.installLinux()
+                Text(
+                    text = "Current Task",
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                Text(
+                    text = installation.installationStep,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                LinearProgressIndicator(
+                    progress = { installation.installationProgress },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = "${(installation.installationProgress * 100).toInt()}% complete",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                HorizontalDivider()
+
+                Text(
+                    text = "Installation Steps",
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                installationSteps.forEach { step ->
+                    InstallationStepRow(
+                        step = step,
+                        currentStep = installation.installationStep,
+                        currentProgress = installation.installationProgress
+                    )
                 }
-            ) {
-                Text("Install Ubuntu")
             }
         }
 
+        if (installation.installed && !installation.isInstalling) {
+            Text(
+                text = "Ubuntu is ready to use.",
+                color = Color(0xFF00C853),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 500.dp),
+
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Packages: ${installation.packageCount}")
+            Text("Storage Used: ${installation.storageUsedMb} MB")
+        }
+
+        when {
+            installation.isInstalling -> {
+                Button(
+                    onClick = {},
+                    enabled = false
+                ) {
+                    Text("Installing...")
+                }
+            }
+
+            installation.installed -> {
+                Button(
+                    onClick = {
+                        linuxViewModel.removeLinux()
+                    }
+                ) {
+                    Text("Remove Linux")
+                }
+            }
+
+            else -> {
+                Button(
+                    onClick = {
+                        linuxViewModel.installLinux()
+                    }
+                ) {
+                    Text("Install Ubuntu")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InstallationStepRow(
+    step: String,
+    currentStep: String,
+    currentProgress: Float
+) {
+    val stepProgress = when (step) {
+        "Preparing installation..." -> 0.20f
+        "Downloading packages..." -> 0.40f
+        "Installing packages..." -> 0.65f
+        "Configuring system..." -> 0.85f
+        "Cleaning up..." -> 0.95f
+        else -> 1f
     }
 
+    val statusSymbol = when {
+        currentProgress > stepProgress -> "✓"
+        currentStep == step -> "▶"
+        else -> "○"
+    }
+
+    val statusColor = when {
+        currentProgress > stepProgress -> Color(0xFF00C853)
+        currentStep == step -> Color(0xFFFFC107)
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Text(
+        text = "$statusSymbol  $step",
+        color = statusColor,
+        style = MaterialTheme.typography.bodyMedium
+    )
 }
