@@ -1,6 +1,7 @@
 package com.noahrose.pocketlab.feature.terminal
 
 import com.noahrose.pocketlab.feature.filesystem.VirtualFileSystem
+
 object TerminalCommandProcessor {
 
     fun process(
@@ -8,9 +9,11 @@ object TerminalCommandProcessor {
         output: MutableList<String>
     ) {
 
-        output.add("atlas@cyberdeck:~$ $command")
+        val currentPath = VirtualFileSystem.currentPath.value
 
-        val parts = command.split(" ", limit = 2)
+        output.add("atlas@cyberdeck:$currentPath$ $command")
+
+        val parts = command.trim().split(" ", limit = 2)
 
         when (parts[0].lowercase()) {
 
@@ -23,6 +26,7 @@ object TerminalCommandProcessor {
                 output.add("pwd")
                 output.add("ls")
                 output.add("mkdir")
+                output.add("cd")
                 output.add("status")
                 output.add("neofetch")
             }
@@ -36,31 +40,44 @@ object TerminalCommandProcessor {
             }
 
             "pwd" -> {
-                output.add("/home/atlas")
+                output.add(
+                    VirtualFileSystem.currentPath.value
+                        .replace("~", "/home/atlas")
+                )
             }
 
             "ls" -> {
-
-                VirtualFileSystem.files.value.forEach {
-                    output.add(it.name)
-                }
-
+                VirtualFileSystem.files.value
+                    .filter {
+                        it.path == VirtualFileSystem.currentPath.value
+                    }
+                    .forEach {
+                        output.add(it.name)
+                    }
             }
 
             "mkdir" -> {
-
-                if (parts.size < 2) {
-
+                if (parts.size < 2 || parts[1].isBlank()) {
                     output.add("Usage: mkdir <directory>")
-
                 } else {
-
-                    VirtualFileSystem.createDirectory(parts[1])
-
-                    output.add("Directory created: ${parts[1]}")
-
+                    VirtualFileSystem.createDirectory(parts[1].trim())
+                    output.add("Directory created: ${parts[1].trim()}")
                 }
+            }
 
+            "cd" -> {
+                if (parts.size < 2 || parts[1].isBlank()) {
+                    output.add("Usage: cd <directory>")
+                } else {
+                    val changed =
+                        VirtualFileSystem.changeDirectory(parts[1].trim())
+
+                    if (!changed) {
+                        output.add(
+                            "cd: ${parts[1].trim()}: No such directory"
+                        )
+                    }
+                }
             }
 
             "status" -> {
