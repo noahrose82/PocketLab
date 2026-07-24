@@ -1,5 +1,6 @@
 package com.noahrose.pocketlab.feature.terminal
 
+import com.noahrose.pocketlab.feature.filesystem.VirtualFileSystem
 object TerminalCommandProcessor {
 
     fun process(
@@ -9,7 +10,9 @@ object TerminalCommandProcessor {
 
         output.add("atlas@cyberdeck:~$ $command")
 
-        when (command.lowercase()) {
+        val parts = command.split(" ", limit = 2)
+
+        when (parts[0].lowercase()) {
 
             "help" -> {
                 output.add("Available commands:")
@@ -19,6 +22,7 @@ object TerminalCommandProcessor {
                 output.add("whoami")
                 output.add("pwd")
                 output.add("ls")
+                output.add("mkdir")
                 output.add("status")
                 output.add("neofetch")
             }
@@ -36,16 +40,33 @@ object TerminalCommandProcessor {
             }
 
             "ls" -> {
-                output.add("Documents")
-                output.add("Downloads")
-                output.add("Projects")
-                output.add("Tools")
+
+                VirtualFileSystem.files.value.forEach {
+                    output.add(it.name)
+                }
+
+            }
+
+            "mkdir" -> {
+
+                if (parts.size < 2) {
+
+                    output.add("Usage: mkdir <directory>")
+
+                } else {
+
+                    VirtualFileSystem.createDirectory(parts[1])
+
+                    output.add("Directory created: ${parts[1]}")
+
+                }
+
             }
 
             "status" -> {
                 output.add("Atlas Cyberdeck")
                 output.add("Status : ONLINE")
-                output.add("Linux  : INSTALLED")
+                output.add("Linux : INSTALLED")
                 output.add("Terminal : ACTIVE")
             }
 
@@ -60,10 +81,6 @@ object TerminalCommandProcessor {
             else -> {
                 output.add("Command not found: $command")
             }
-        }
-
-        if (command.lowercase() != "clear") {
-            output.add("")
         }
     }
 }
